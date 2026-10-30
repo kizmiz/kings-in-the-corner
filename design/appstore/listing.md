@@ -214,5 +214,5 @@ Both pages are in `docs/`, published with GitHub Pages, each in English with Ger
 - Support URL: https://kizmiz.github.io/kings-in-the-corner/ (German: `…/#de`)
 - Privacy Policy URL: https://kizmiz.github.io/kings-in-the-corner/privacy/ (German: `…/privacy/#de`)
 
-They're self-contained, in the app's own look (`docs/style.css`, the app's fonts in `docs/fonts/`),
-and send people to the studio's Impressum for the address and how to reach us.
+They match the studio's other app pages on kizmiz.github.io (Cambio Agents) and use its styles and
+fonts, and send people to the studio's Impressum for the address and how to reach us.
