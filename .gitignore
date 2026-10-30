@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+runs/
+runs-*.log
+.playwright-cli/
+.DS_Store
+ios/build/
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/local.properties
+
+# Copies of the App Store art with the safe area outlined, for checking (art.html redraws them).
+design/appstore/creative/guides/

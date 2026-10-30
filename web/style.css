@@ -1,0 +1,1004 @@
+/* Kings in the Corner: a card table. Green felt with a printed gold line, classic cards with Bodoni
+   indices, gold for "you can play here". Devils in the Corner turns the felt to oxblood and the gold
+   to ember. */
+
+:root {
+  --felt: #14683d;
+  --felt-deep: #0a3f25;
+  --felt-light: #1d8550;
+  --felt-line: rgba(233, 196, 106, 0.42);
+  --gold: #e9c46a;
+  --gold-hi: #f6dc94;
+  --gold-lo: #a97c21;
+  --cream: #f4efe1;
+  --cream-soft: rgba(244, 239, 225, 0.72);
+  --shade: rgba(4, 28, 16, 0.45);
+  --card: #fdfcf8;
+  --card-edge: #cdc8bb;
+  --red: #c8102e;
+  --ink: #16181b;
+  --ink-soft: #545a60;
+  --paper: #fbf8f0;
+  --rule: #e2dccb;
+
+  --display: "Bodoni Moda", "Didot", Georgia, serif;
+  --text: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+
+  --w: 52px;                       /* card width; everything on a card scales from it */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  /* The sides: iPhone Duo's cover screen keeps its clock in a strip down the right. */
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --vw: calc(100vw - var(--sal) - var(--sar));   /* the width the page can use */
+
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+/* Devils in the Corner: the same table after dark. */
+.demons {
+  --felt: #5a1219;
+  --felt-deep: #23060a;
+  --felt-light: #7d1b24;
+  --felt-line: rgba(255, 122, 61, 0.45);
+  --gold: #ff8a3d;
+  --gold-hi: #ffb47d;
+  --gold-lo: #b4471a;
+  --shade: rgba(20, 2, 5, 0.5);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+
+body {
+  background: var(--felt-deep);
+  color: var(--cream);
+  font: 400 16px/1.45 var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
+
+.in-app body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+.in-app button { touch-action: manipulation; }
+
+/* ------------------------------------------------------------------ the felt */
+
+.table, .felt {
+  position: relative;
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+  overflow: hidden;
+  background:
+    var(--noise),
+    radial-gradient(120% 90% at 50% 42%, var(--felt-light) 0%, var(--felt) 48%, var(--felt-deep) 100%);
+  color: var(--cream);
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.card {
+  --h: calc(var(--w) * 1.4);
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--w);
+  height: var(--h);
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--w) * 0.075);
+  background: linear-gradient(162deg, #fff 0%, var(--card) 42%, #f1ede1 100%);
+  color: var(--ink);
+  /* A shadow in two parts: where the card touches the felt, and the softer one it casts. */
+  box-shadow:
+    0 0 0 0.5px var(--card-edge),
+    0 1px 1px rgba(0, 0, 0, 0.3),
+    0 calc(var(--w) * 0.05) calc(var(--w) * 0.12) rgba(0, 0, 0, 0.2),
+    0 calc(var(--w) * 0.16) calc(var(--w) * 0.3) calc(var(--w) * -0.08) rgba(0, 0, 0, 0.32);
+}
+/* The card's own edge: it catches the light along the top and falls into shade along the bottom. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 1px rgba(90, 78, 55, 0.18), inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+.card.red { color: var(--red); }
+button.card { cursor: pointer; text-align: left; }
+.card .face { position: absolute; inset: 0; width: 100%; height: 100%; fill: currentColor; overflow: visible; }
+/* The index is the part of a card you read: heavy, and cut for small sizes (Bodoni's thick-hairline
+   optical size), so it stays sharp on a phone. */
+.card .rank {
+  font: 900 23px/1 var(--display);
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 6;
+  text-anchor: middle;
+  letter-spacing: -0.5px;
+}
+.card .rank.ten { font-size: 19px; letter-spacing: -2px; }
+.card .frame { fill: none; stroke: currentColor; stroke-width: 0.9; }
+.card .frame-fill { fill: #fff; }
+.card .frame-line { stroke: currentColor; stroke-width: 0.5; opacity: 0.6; }
+.card .frame.inner { stroke-width: 0.35; opacity: 0.55; }
+.card.demon { box-shadow: 0 0 0 0.5px var(--card-edge), 0 0 calc(var(--w) * 0.18) rgba(255, 90, 31, 0.55), 0 1px 1.5px rgba(0, 0, 0, 0.35); }
+
+/* ------------------------------------------------------------------ piles and the cross */
+
+/* The cross takes all the room the seats and your hand leave: the width between the side seats,
+   and the height between the top seat and your hand. */
+.cross {
+  --w: calc(var(--cell) * 0.62);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell));
+  grid-template-rows: repeat(3, calc(var(--cell) * 1.3));
+  gap: 4px;
+  justify-content: center;
+  align-content: center;
+}
+
+.spot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: default;
+}
+
+/* An empty place: a line printed on the felt. */
+.slot {
+  width: var(--w);
+  height: calc(var(--w) * 1.4);
+  border-radius: calc(var(--w) * 0.075);
+  border: 1.5px solid var(--felt-line);
+  display: grid;
+  place-items: center;
+  color: var(--felt-line);
+  font: 700 11px/1.15 var(--text);
+  text-align: center;
+}
+.slot span { font: italic 700 22px/1 var(--display); }
+.slot .eye { width: 30px; height: 18px; opacity: 0.85; }
+.spot.corner .slot > * { transform: rotate(calc(var(--turn) * -1)); }
+
+/* The corners take kings, set on the diagonal as they are on a real table, each pile squared up
+   with its king out toward the corner of the table and the cards built on it toward the middle. */
+.spot.corner > * { transform: rotate(var(--turn)); }
+.spot.nw { --turn: -35deg; }
+.spot.ne { --turn: 35deg; }
+.spot.sw { --turn: 215deg; }
+.spot.se { --turn: 145deg; }
+/* The top card stays in the middle of its place; the king reaches out toward the table's corner. */
+.spot.corner .pile[data-base] { margin: 0; }
+.cross .card { --drop: 0 1px 1.5px rgba(0, 0, 0, 0.38), 0 3px 6px rgba(0, 0, 0, 0.22), 0 10px 18px -6px rgba(0, 0, 0, 0.42); box-shadow: 0 0 0 0.5px var(--card-edge), var(--drop); }
+
+.pile {
+  position: relative;
+  --peek: calc(var(--w) * 0.48);                       /* enough of the first card for its rank and suit */
+  --gap: max(2.4px, calc(var(--w) * 0.05));            /* each card in between: one fine edge */
+  --between: calc(var(--lines, 0) * var(--gap));
+}
+.pile .base { position: absolute; left: 0; top: calc((var(--peek) + var(--between)) * -1); }
+.pile .top { position: relative; }
+.pile[data-base] { margin-top: calc(var(--peek) + var(--between)); }
+.pile .edge {
+  position: absolute;
+  left: 0;
+  width: var(--w);
+  height: calc(var(--w) * 1.4);
+  border-radius: calc(var(--w) * 0.075);
+  background: linear-gradient(#fff, var(--card) 20%);
+  box-shadow: 0 0 0 0.5px var(--card-edge), 0 -1px 1.5px rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+.pile .edge:nth-of-type(1) { top: calc(var(--lines) * var(--gap) * -1); }
+.pile .edge:nth-of-type(2) { top: calc((var(--lines) - 1) * var(--gap) * -1); }
+.pile .edge:nth-of-type(3) { top: calc((var(--lines) - 2) * var(--gap) * -1); }
+.pile .edge:nth-of-type(4) { top: calc((var(--lines) - 3) * var(--gap) * -1); }
+.pile .edge:nth-of-type(5) { top: calc((var(--lines) - 4) * var(--gap) * -1); }
+.pile .depth {
+  position: absolute;
+  z-index: 2;
+  right: calc(var(--w) * -0.2);
+  top: calc(var(--w) * -0.2);
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--cream);
+  font: 800 11px/20px var(--text);
+  text-align: center;
+  box-shadow: 0 0 0 1.5px var(--cream);
+}
+.pile[data-base] .depth { top: calc((var(--peek) + var(--between)) * -1 - var(--w) * 0.2); }
+.spot.corner .depth { transform: rotate(calc(var(--turn) * -1)); }
+
+/* Where the chosen card or pile can go. */
+.spot.target { cursor: pointer; }
+.spot.target .slot { border: 2px solid var(--gold); background: color-mix(in srgb, var(--gold) 22%, transparent); }
+.spot.target .slot, .spot.target .pile .top {
+  box-shadow: 0 0 0 2.5px var(--gold), 0 0 16px 2px color-mix(in srgb, var(--gold) 70%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spot.target .slot, .spot.target .pile .top { animation: beckon 1.4s ease-in-out infinite; }
+}
+@keyframes beckon {
+  50% { box-shadow: 0 0 0 2.5px var(--gold), 0 0 26px 6px color-mix(in srgb, var(--gold) 80%, transparent); }
+}
+
+.spot.lifted .pile { transform: translateY(-8px); }
+.spot.lifted .pile .card { box-shadow: 0 0 0 2.5px var(--gold), 0 14px 22px -8px rgba(0, 0, 0, 0.7); }
+
+/* The card just played, marked with the portrait of whoever played it. */
+.fresh-by.avatar { position: absolute; z-index: 3; width: 24px; height: 24px; right: -4px; bottom: -4px; box-shadow: 0 0 0 2px var(--cream); }
+.spot.corner .fresh-by.avatar { transform: rotate(calc(var(--turn) * -1)); }
+
+.stock { position: relative; display: grid; place-items: center; }
+.stock .card.back:nth-child(1) { position: absolute; transform: translate(-3px, -3px); }
+.stock .card.back:nth-child(2) { position: absolute; transform: translate(-1.5px, -1.5px); }
+.stock .count {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  transform: translateX(-50%);
+  min-width: 26px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--cream);
+  font: 800 12px/18px var(--text);
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 0 0 1.5px var(--gold);
+}
+.stock.out .slot { font-size: 11px; color: var(--cream-soft); border-style: dashed; }
+
+/* ------------------------------------------------------------------ the game screen */
+
+.game {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto auto;
+  height: 100%;
+  padding: var(--sat) var(--sar) var(--sab) var(--sal);
+}
+
+/* The printed line round the play area, as on a card-room table. */
+.felt-line {
+  position: absolute;
+  inset: 0 max(6px, calc(50% - var(--cell) * 1.5 - 14px));
+  border: 1.5px solid var(--felt-line);
+  border-radius: 46px;
+  pointer-events: none;
+}
+.felt-line::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 0.75px solid var(--felt-line);
+  border-radius: 41px;
+  opacity: 0.6;
+}
+
+.board {
+  --cell: min(108px, calc((var(--vw) - 104px) / 3), calc((100dvh - 440px) / 3.9));
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 8px 0;
+}
+.game.seats-1 .board { --cell: min(116px, calc((var(--vw) - 28px) / 3), calc((100dvh - 440px) / 3.9)); }
+
+/* The rivals' seats: across at the top, then left and right of the cross. */
+.top-seat { min-height: 84px; display: grid; place-items: center; padding-top: 4px; }
+.seat { display: grid; justify-items: center; gap: 4px; --w: 20px; }
+.seat .fan { display: flex; }
+.seat .fan .card { box-shadow: 0 0 0 0.5px var(--card-edge), 0 1px 2px rgba(0, 0, 0, 0.4); }
+.seat .fan .card + .card { margin-left: -12px; }
+.seat .plate {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 24px;
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1px rgba(244, 239, 225, 0.14);
+}
+.seat .who { display: grid; line-height: 1.1; }
+.seat .who b { font: 700 15px/1.1 var(--display); color: var(--cream); white-space: nowrap; }
+.seat .who span { font-size: 12px; font-weight: 700; color: var(--cream-soft); white-space: nowrap; }
+.seat.turn .plate { background: var(--cream); box-shadow: 0 0 0 2px var(--gold), 0 0 18px color-mix(in srgb, var(--gold) 60%, transparent); }
+.seat.turn .who b, .seat.turn .who span { color: var(--ink); }
+.seat.turn .avatar { box-shadow: 0 0 0 2px var(--gold); }
+/* In a match: the score under the name. */
+.seat .who .pts { font-style: normal; font-size: 11px; font-weight: 800; color: var(--gold); white-space: nowrap; }
+.seat.turn .who .pts { color: var(--ink); }
+.seat.left .who .pts, .seat.right .who .pts { font-size: 10px; }
+
+/* In a match, across from the menu: your score out of 50 and the hand. Tap for the scores. */
+.match-pill {
+  position: absolute;
+  z-index: 6;
+  right: calc(var(--sar) + 12px);
+  top: calc(var(--sat) + 8px);
+  display: grid;
+  justify-items: center;
+  min-width: 54px;
+  padding: 5px 10px 6px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1px rgba(244, 239, 225, 0.14);
+  color: var(--cream);
+  cursor: pointer;
+}
+.match-pill small { font-size: 10.5px; font-weight: 800; line-height: 1.1; color: var(--cream-soft); }
+.match-pill b { font: 700 20px/1.05 var(--display); }
+.match-pill b span { margin-left: 1px; font-size: 11px; color: var(--cream-soft); }
+
+.seat.left, .seat.right {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+}
+.seat.left { left: 2px; }
+.seat.right { right: 2px; }
+.seat.left .fan, .seat.right .fan { flex-direction: column; align-items: center; margin-bottom: 4px; }
+.seat.left .fan .card, .seat.right .fan .card { transform: rotate(90deg); margin: 0; }
+.seat.left .fan .card + .card, .seat.right .fan .card + .card { margin-top: -22px; }
+.seat.left .plate, .seat.right .plate { flex-direction: column; gap: 2px; padding: 3px 3px 5px; border-radius: 18px; }
+.seat.left .who, .seat.right .who { justify-items: center; text-align: center; }
+.seat.left .who b, .seat.right .who b { display: block; max-width: 42px; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+.seat.left .who span, .seat.right .who span { display: none; }
+
+/* How many cards they hold, on their portrait. */
+.seat .held {
+  position: absolute;
+  z-index: 1;
+  right: -6px;
+  bottom: -4px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
+  border-radius: 10px;
+  background: linear-gradient(var(--cream), #e4dcc6);
+  color: var(--ink);
+  font: 800 11px/19px var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  box-shadow: 0 0 0 1.5px var(--felt-deep), 0 2px 3px rgba(0, 0, 0, 0.45);
+}
+.seat.turn .held { background: var(--ink); color: var(--cream); box-shadow: 0 0 0 1.5px var(--gold), 0 2px 3px rgba(0, 0, 0, 0.45); }
+/* Away: their seat waits, paused. */
+.seat.away .avatar { filter: grayscale(0.75) brightness(0.8); }
+.seat .paused {
+  position: absolute;
+  z-index: 1;
+  left: -5px;
+  top: -4px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--ink) linear-gradient(90deg, transparent 5px, var(--cream) 5px 7px, transparent 7px 10px, var(--cream) 10px 12px, transparent 12px) center / 17px 7px no-repeat;
+  box-shadow: 0 0 0 1.5px var(--cream);
+}
+.said { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.avatar {
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: none;
+  box-shadow: 0 0 0 1.5px rgba(244, 239, 225, 0.7), 0 2px 5px rgba(0, 0, 0, 0.42);
+}
+.avatar svg { display: block; width: 100%; height: 100%; }
+.avatar.big { width: 64px; height: 64px; box-shadow: 0 0 0 2.5px var(--gold); }
+
+/* One line about what's happening, under the cross. */
+.status {
+  min-height: 40px;
+  margin: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--cream);
+}
+.status .tally {
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+.status .hint { font-weight: 400; color: var(--cream-soft); }
+.status .red { color: #ff9a8f; }
+
+/* Your hand, fanned in an arc at your edge of the table. */
+.hand {
+  --w: 62px;
+  --fan: min(2.2deg, calc(18deg / var(--n)));
+  /* The arc pushes the outer cards outward, so the spacing leaves room for it. */
+  --step: min(calc(var(--w) * 0.62), calc((100cqw - var(--w) - 84px) / max(var(--n) - 1, 1)));
+  container-type: inline-size;
+  position: relative;
+  height: calc(var(--w) * 1.4 + 34px);
+}
+.hand .card {
+  --c: calc(var(--i) - (var(--n) - 1) / 2);
+  position: absolute;
+  bottom: 6px;
+  left: calc(50% - var(--w) / 2 + var(--c) * var(--step));
+  transform-origin: 50% 200%;
+  transform: rotate(calc(var(--c) * var(--fan)));
+  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);   /* a small overshoot on lifting */
+}
+.hand .card { box-shadow: 0 0 0 0.5px var(--card-edge), -2px 0 4px -1px rgba(0, 0, 0, 0.24), 0 2px 3px rgba(0, 0, 0, 0.26), 0 12px 18px -8px rgba(0, 0, 0, 0.5); }
+.hand .card.demon { box-shadow: 0 0 0 0.5px var(--card-edge), -2px 0 4px -1px rgba(0, 0, 0, 0.24), 0 0 calc(var(--w) * 0.18) rgba(255, 90, 31, 0.55), 0 12px 18px -8px rgba(0, 0, 0, 0.5); }
+.hand .card.playable { transform: rotate(calc(var(--c) * var(--fan))) translateY(-9px); }
+.hand .card.playable::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.hand .card.picked {
+  z-index: 1;
+  transform: rotate(calc(var(--c) * var(--fan))) translateY(-24px);
+  box-shadow: 0 0 0 2.5px var(--gold), 0 0 18px color-mix(in srgb, var(--gold) 65%, transparent), 0 16px 22px -8px rgba(0, 0, 0, 0.7);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 10px;
+  padding: 2px 16px 10px;
+}
+
+/* A devil's power, announced over the cross. */
+.banner {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(290px, 78%);
+  padding: 14px 18px 16px;
+  border-radius: 14px;
+  background: rgba(14, 2, 4, 0.9);
+  box-shadow: 0 0 0 1.5px var(--gold), 0 0 40px color-mix(in srgb, var(--gold) 45%, transparent);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.banner .eye { width: 54px; height: 32px; }
+.banner b { font: 700 24px/1.1 var(--display); color: var(--gold-hi); }
+.banner span { font-size: 14px; color: var(--cream); }
+
+/* ------------------------------------------------------------------ buttons */
+
+.btn {
+  min-height: 50px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 26px;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  color: var(--ink);
+  font: 800 17px/1.1 var(--text);
+  cursor: pointer;
+  box-shadow: inset 0 -3px 0 var(--gold-lo), 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+.btn:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 var(--gold-lo), 0 1px 3px rgba(0, 0, 0, 0.35); }
+.btn.plain { background: var(--shade); color: var(--cream); box-shadow: inset 0 0 0 1.5px rgba(244, 239, 225, 0.4); }
+/* End turn, once there's nothing left to play: it lights up on its own. */
+.btn.ready {
+  background: linear-gradient(105deg, var(--gold) 0%, var(--gold-hi) 38%, #fffbea 50%, var(--gold-hi) 62%, var(--gold) 100%);
+  background-size: 260% 100%;
+  box-shadow: inset 0 -3px 0 var(--gold-lo), 0 0 0 3px color-mix(in srgb, var(--gold) 55%, transparent), 0 0 24px 4px color-mix(in srgb, var(--gold) 55%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn.ready { animation: shine 1.8s ease-in-out infinite; }
+}
+@keyframes shine {
+  0% { background-position: 100% 0; }
+  50% { box-shadow: inset 0 -3px 0 var(--gold-lo), 0 0 0 5px color-mix(in srgb, var(--gold) 70%, transparent), 0 0 34px 10px color-mix(in srgb, var(--gold) 60%, transparent); }
+  100% { background-position: -100% 0; }
+}
+.btn[disabled] { cursor: default; background: transparent; color: var(--cream-soft); box-shadow: inset 0 0 0 1.5px rgba(244, 239, 225, 0.22); }
+.btn[disabled]:active { transform: none; }
+.btn small { display: block; margin-top: 3px; font-size: 12.5px; font-weight: 700; opacity: 0.78; }
+.sheet .btn.plain { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+.soon {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: 2px;
+}
+
+/* ------------------------------------------------------------------ home */
+
+.home {
+  display: grid;
+  grid-template-rows: 1fr auto auto auto;
+  height: 100%;
+  padding: calc(var(--sat) + 12px) calc(var(--sar) + 22px) calc(var(--sab) + 16px) calc(var(--sal) + 22px);
+}
+.home .corner-king { position: absolute; --w: 84px; }
+.home .corner-king.nw { left: -18px; top: calc(var(--sat) - 4px); transform: rotate(-24deg); }
+.home .corner-king.ne { right: -18px; top: calc(var(--sat) - 4px); transform: rotate(24deg); }
+
+.title { align-self: center; text-align: center; color: var(--gold-hi); margin-top: 40px; }
+.title .kings { display: block; font: italic 800 86px/0.9 var(--display); letter-spacing: -2px; text-shadow: 0 2px 0 var(--gold-lo), 0 6px 18px rgba(0, 0, 0, 0.45); }
+.title .rest { display: block; margin-top: 6px; font: 600 25px/1 var(--display); letter-spacing: 0.06em; color: var(--cream); }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.mode {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 10px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1.5px rgba(244, 239, 225, 0.2);
+  cursor: pointer;
+  --w: 56px;
+}
+.mode b { font: 700 19px/1 var(--display); color: var(--cream); }
+.mode small { font-size: 12.5px; line-height: 1.3; color: var(--cream-soft); text-align: center; }
+.mode[aria-pressed="true"] { background: rgba(0, 0, 0, 0.34); box-shadow: inset 0 0 0 2px var(--gold), 0 0 18px color-mix(in srgb, var(--gold) 35%, transparent); }
+.mode.demons-mode { background: rgba(60, 8, 14, 0.55); }
+.mode.demons-mode[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #ff8a3d, 0 0 22px rgba(255, 90, 31, 0.5); }
+
+.menu { display: grid; gap: 10px; }
+.menu .btn { width: 100%; }
+.home .foot { display: flex; justify-content: center; margin-top: 12px; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--shade);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.icon-btn svg { width: 22px; height: 22px; stroke: var(--cream); stroke-width: 2.2; fill: none; stroke-linecap: round; }
+
+/* ------------------------------------------------------------------ choosing the table */
+
+.screen-title { margin: 0; padding: 4px 20px 2px; font: 700 32px/1.05 var(--display); color: var(--cream); }
+.screen-sub { margin: 0 20px 12px; color: var(--cream-soft); font-size: 15px; }
+.top-row { display: flex; align-items: center; gap: 4px; padding: calc(var(--sat) + 4px) 12px 0; }
+
+/* A small table seen from above: who sits where. */
+.seating {
+  position: relative;
+  height: clamp(104px, 19dvh, 150px);
+  margin: 4px 26px 16px;
+  border-radius: 75px;
+  background: rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1.5px var(--felt-line);
+}
+.seating .chair { position: absolute; display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 700; color: var(--cream-soft); }
+.seating .chair .avatar { width: 40px; height: 40px; }
+.seating .chair.empty i { width: 40px; height: 40px; border-radius: 50%; border: 1.5px dashed var(--felt-line); }
+.seating .chair.you { left: 50%; bottom: -10px; transform: translateX(-50%); }
+.seating .chair.top { left: 50%; top: -10px; transform: translateX(-50%); }
+.seating .chair.left { left: -12px; top: 50%; transform: translateY(-50%); }
+.seating .chair.right { right: -12px; top: 50%; transform: translateY(-50%); }
+.seating .you-dot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--cream); color: var(--ink); font-weight: 800; font-size: 13px; }
+.seating .label { position: absolute; inset: 0; display: grid; place-items: center; font: italic 600 16px/1 var(--display); color: var(--felt-line); }
+
+/* The family scrolls in the room it has, so Deal stays put at the bottom on a small phone. */
+.family { display: grid; gap: 8px; padding: 0 16px 10px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.rival-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px 8px 8px;
+  border: 0;
+  border-radius: 14px;
+  text-align: left;
+  background: var(--shade);
+  box-shadow: inset 0 0 0 1px rgba(244, 239, 225, 0.14);
+  cursor: pointer;
+}
+.rival-row .avatar { width: 46px; height: 46px; }
+.rival-row h3 { margin: 0; font: 700 18px/1.1 var(--display); color: var(--cream); }
+.rival-row p { margin: 2px 0 0; font-size: 13px; line-height: 1.3; color: var(--cream-soft); }
+.rival-row .seated { font-size: 12px; font-weight: 800; color: var(--gold); white-space: nowrap; }
+.rival-row[aria-pressed="true"] { background: rgba(0, 0, 0, 0.34); box-shadow: inset 0 0 0 2px var(--gold); }
+
+.level { display: inline-flex; gap: 3px; vertical-align: 2px; margin-left: 6px; }
+.level i { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+.level i.off { background: transparent; box-shadow: inset 0 0 0 1.2px var(--cream-soft); }
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0 16px 12px;
+  padding: 4px;
+  border-radius: 24px;
+  background: var(--shade);
+}
+.segmented button { min-height: 38px; border: 0; border-radius: 20px; background: transparent; font-weight: 800; font-size: 14px; color: var(--cream-soft); cursor: pointer; }
+.segmented button[aria-pressed="true"] { background: var(--cream); color: var(--ink); }
+.pick-foot { padding: 12px 16px calc(var(--sab) + 12px); }
+
+/* ------------------------------------------------------------------ sheets */
+
+.scrim { position: absolute; inset: 0; z-index: 4; background: rgba(0, 0, 0, 0.45); }
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 10px calc(var(--sar) + 22px) calc(var(--sab) + 18px) calc(var(--sal) + 22px);
+  border-radius: 22px 22px 0 0;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45);
+}
+.sheet::before { content: ""; display: block; width: 42px; height: 5px; margin: 0 auto 12px; border-radius: 3px; background: var(--rule); }
+.sheet h2 { margin: 0 0 4px; font: 700 28px/1.1 var(--display); }
+.sheet p { margin: 0 0 12px; color: var(--ink-soft); }
+.sheet .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sheet .btn { box-shadow: inset 0 -3px 0 var(--gold-lo); }
+
+/* The tally after a game: one line per player. */
+.tally-table { width: 100%; margin: 6px 0 16px; border-collapse: collapse; font-size: 15px; }
+.tally-table td { padding: 7px 0; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+.tally-table td:last-child { text-align: right; }
+.tally-table .who { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.tally-table .who .avatar { width: 26px; height: 26px; }
+.tally-table .won td { font-weight: 800; }
+.tally-table .won td:last-child { color: #1d8550; }
+/* After a hand in a match: who and what they held, the points this hand, the total. */
+.match-table .head td { padding: 0 0 4px; font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+.match-table .chips { justify-content: flex-start; margin-top: 5px; }
+.match-table .chip { min-width: 22px; padding: 1px 4px; font-size: 12.5px; }
+.match-table .out { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 800; color: #1d8550; }
+.match-table .got, .match-table .total { width: 54px; text-align: right; font-variant-numeric: tabular-nums; }
+.match-table .got { color: var(--ink-soft); font-weight: 700; }
+.match-table .total { font: 800 20px/1 var(--display); }
+.match-table .lost .total { color: var(--red); }
+/* The scores sheet: a row a hand, a column a player. */
+.score-table { width: 100%; margin: 12px 0 16px; border-collapse: collapse; font-size: 15px; text-align: center; font-variant-numeric: tabular-nums; }
+.score-table th { max-width: 72px; padding: 0 2px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+.score-table td { padding: 6px 2px; border-top: 1px solid var(--rule); }
+.score-table th:first-child, .score-table td:first-child { text-align: left; color: var(--ink-soft); }
+.score-table td.out { font-weight: 800; color: #1d8550; }
+.score-table small { margin-left: 2px; font-size: 11px; color: var(--ink-soft); }
+.score-table .sum td { font: 800 19px/1.2 var(--display); color: var(--ink); }
+/* A card named in a line of text: its index on a little card. */
+.chips { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; vertical-align: middle; }
+.chip {
+  display: inline-block;
+  min-width: 26px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--card);
+  box-shadow: 0 0 0 1px var(--card-edge), 0 1px 1px rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  font: 700 14px/1.2 var(--display);
+  text-align: center;
+}
+.chip.red { color: var(--red); }
+
+.result-mark { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+
+/* ------------------------------------------------------------------ how to play */
+
+.rules { padding: 0 16px calc(var(--sab) + 16px); display: grid; gap: 10px; }
+.rule { padding: 12px 14px 14px; border-radius: 14px; background: var(--shade); box-shadow: inset 0 0 0 1px rgba(244, 239, 225, 0.14); }
+.rule h3 { margin: 0 0 4px; font: 700 18px/1.15 var(--display); color: var(--gold-hi); display: flex; align-items: center; gap: 8px; }
+.rule h3 .eye { width: 26px; height: 16px; }
+.rule p { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--cream); max-width: 34em; }
+.rule .demo { display: flex; align-items: flex-end; gap: 8px; margin-top: 10px; --w: 38px; }
+.rule .demo .on { margin-left: -24px; transform: translateY(14px); }
+.rule .demo .arrow { align-self: center; font-weight: 800; font-size: 18px; color: var(--cream-soft); }
+.rule.demons-rule { background: rgba(35, 6, 10, 0.62); box-shadow: inset 0 0 0 1px rgba(255, 122, 61, 0.45); }
+.rule.demons-rule h3 { color: #ffb47d; }
+
+/* ------------------------------------------------------------------ settings */
+
+.toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 54px; border-bottom: 1px solid var(--rule); }
+.toggle-row:last-of-type { border-bottom: 0; }
+.toggle-row span { font-weight: 700; }
+.toggle-row small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 13px; }
+.switch { flex: none; position: relative; width: 50px; height: 30px; border: 0; border-radius: 15px; background: #d6d1c4; cursor: pointer; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.15s; }
+.switch[aria-checked="true"] { background: #1d8550; }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ------------------------------------------------------------------ a pile, opened up */
+
+.pile-view {
+  --w: 60px;
+  container-type: inline-size;
+  display: flex;
+  margin: 10px 0 4px;
+  padding: 4px 0 6px;
+}
+.pile-view { margin-bottom: 14px; }
+.pile-view .pv { flex: none; width: var(--w); display: grid; gap: 6px; }
+.pile-view .pv:not(:first-child) {
+  margin-left: clamp(calc(var(--w) * -0.7), (100cqw - var(--n) * var(--w)) / max(var(--n) - 1, 1), 8px);
+}
+.pile-view .pv span { font-size: 12px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+.pile-view .pv:last-child:not(:first-child) span { justify-self: end; text-align: right; }
+.pile-view .card { box-shadow: 0 0 0 1px var(--card-edge), 0 2px 6px rgba(0, 0, 0, 0.25); }
+
+/* ------------------------------------------------------------------ Wi-Fi tables */
+
+.avatar.monogram {
+  container-type: size;
+  display: inline-grid;
+  place-items: center;
+  background: radial-gradient(circle at 36% 28%, hsl(var(--hue) 50% 55%), hsl(var(--hue) 44% 38%) 55%, hsl(var(--hue) 48% 23%));
+  color: var(--cream);
+  /* struck like the pictures: a darker rim, a fine cream ring inside it */
+  box-shadow: inset 0 0 0 2.5px hsl(var(--hue) 44% 28%), inset 0 0 0 3.4px rgba(244, 239, 225, 0.4), 0 0 0 1.5px rgba(244, 239, 225, 0.7), 0 2px 5px rgba(0, 0, 0, 0.42);
+}
+.avatar.monogram b { font: 700 52cqh/1 var(--display); text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45); }
+
+.field { display: grid; gap: 6px; margin: 4px 16px 14px; font-weight: 700; font-size: 14px; color: var(--cream-soft); }
+.field input {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--cream);
+  color: var(--ink);
+  font: 700 17px/1.2 var(--text);
+  -webkit-user-select: text;
+  user-select: text;
+}
+.field input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.lobby-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 14px;
+  background: var(--shade);
+  color: var(--cream);
+}
+.lobby-row b { font: 700 18px/1.1 var(--display); }
+.lobby-row.open { color: var(--cream-soft); font-size: 14px; }
+.lobby-row .avatar { width: 40px; height: 40px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .searching { animation: searching 1.6s ease-in-out infinite; }
+}
+@keyframes searching { 50% { opacity: 0.45; } }
+.sheet .waiting { margin: 0 0 12px; text-align: center; font-weight: 700; color: var(--ink-soft); }
+
+/* Your picture at a Wi-Fi table, and the rule for the play aid. */
+.pictures { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 8px; }
+.pick { padding: 3px; border: 0; border-radius: 50%; background: none; cursor: pointer; justify-self: center; }
+.pick .avatar { width: 40px; height: 40px; }
+.pick[aria-checked="true"] { box-shadow: 0 0 0 2.5px var(--gold); }
+.avatar.pic svg { display: block; width: 100%; height: 100%; }
+.sheet .field { margin: 6px 0 14px; color: var(--ink-soft); }
+.sheet .field input { box-shadow: inset 0 0 0 1.5px var(--rule); }
+.top-row .small-btn { margin-left: auto; min-height: 40px; padding: 4px 14px 4px 4px; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.top-row .small-btn .avatar { width: 32px; height: 32px; }
+.aid-choice { margin: 0 16px 12px; padding: 12px 14px; border-radius: 14px; background: var(--shade); }
+.aid-choice h3 { margin: 0 0 2px; font: 700 17px/1.2 var(--display); color: var(--cream); }
+.aid-choice p { margin: 0 0 10px; font-size: 13px; color: var(--cream-soft); }
+.aid-choice .segmented { margin: 0; grid-template-columns: 1fr 1fr; background: rgba(0, 0, 0, 0.25); }
+.lobby-row.away { opacity: 0.7; }
+.lobby-row > span:last-child:not(:first-child) { margin-left: auto; font-size: 12px; font-weight: 800; color: var(--gold); }
+
+/* The host's bar for a seat whose phone has gone. */
+.away-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 16px 6px;
+  padding: 6px 6px 6px 8px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.38);
+  box-shadow: inset 0 0 0 1.5px var(--gold);
+  font-size: 14px;
+  font-weight: 700;
+}
+.away-bar .avatar { width: 30px; height: 30px; }
+.away-bar > span:not(.avatar) { flex: 1; }
+.away-bar .btn { min-height: 38px; padding: 6px 14px; font-size: 14px; }
+
+/* Bodoni at phone sizes: the sturdier cut, so its hairlines (a hyphen, the thin strokes of a name)
+   don't vanish. */
+.screen-title, .sheet h2, .rule h3, .seat .who b, .rival-row h3, .lobby-row b, .mode b, .aid-choice h3,
+.banner b, .seating .label, .title .rest {
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 11;
+}
+
+/* ------------------------------------------------------------------ the turn timer */
+
+@property --left { syntax: '<number>'; inherits: false; initial-value: 1; }
+
+/* Your turn: a bar above your buttons drains with the clock, and the seconds left count down. */
+.turn-clock {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 6px;
+}
+.turn-clock i {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--gold);
+  transform-origin: left center;
+  animation: drain var(--total) linear forwards;
+  animation-delay: calc(var(--elapsed) * -1);
+}
+.turn-clock .clock { min-width: 38px; text-align: right; font: 800 14px/1 var(--text); font-variant-numeric: tabular-nums; color: var(--cream); }
+@keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* A rival's timed turn: a ring round their portrait. */
+.seat .face { position: relative; display: inline-grid; }
+.seat .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(var(--cream) calc(var(--left) * 1turn), rgba(0, 0, 0, 0.45) 0);   /* reads on any portrait */
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: ring var(--total) linear forwards;
+  animation-delay: calc(var(--elapsed) * -1);
+}
+@keyframes ring { from { --left: 1; } to { --left: 0; } }
+.seat .clock { font-variant-numeric: tabular-nums; font-weight: 800; }
+
+/* The last ten seconds: red, and the number pulses. */
+.game.clock-low .turn-clock i { background: #ff6b5b; }
+.game.clock-low .seat .ring { background: conic-gradient(#ff6b5b calc(var(--left) * 1turn), rgba(0, 0, 0, 0.45) 0); }
+.game.clock-low .clock { color: #ff9a8f; }
+.seat.turn .clock, .game.clock-low .seat.turn .clock { color: #c8102e; }
+@media (prefers-reduced-motion: no-preference) {
+  .game.clock-low .turn-clock .clock { animation: tick 1s ease-in-out infinite; }
+}
+@keyframes tick { 50% { transform: scale(1.18); } }
+.segmented.four { grid-template-columns: repeat(4, 1fr); }
+.segmented.two { grid-template-columns: 1fr 1fr; }
+.turn-clock .more { min-height: 32px; padding: 4px 12px; border: 0; border-radius: 16px; background: var(--cream); color: var(--ink); font: 800 13px/1 var(--text); cursor: pointer; }
+
+/* ------------------------------------------------------------------ refinements */
+
+/* Where a card can go: a dark keyline inside the gold, so the outline reads on felt, on a white
+   card and in either theme, and not by colour alone. */
+.spot.target .slot, .spot.target .pile .top {
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px var(--gold), 0 0 18px 3px color-mix(in srgb, var(--gold) 60%, transparent);
+}
+@keyframes beckon {
+  50% { box-shadow: 0 0 0 2px var(--ink), 0 0 0 6px var(--gold), 0 0 28px 8px color-mix(in srgb, var(--gold) 70%, transparent); }
+}
+
+/* A card that just landed glows for a moment, so a rival's move can be found at a glance. */
+@media (prefers-reduced-motion: no-preference) {
+  .spot.fresh .pile .top { animation: landed 1.3s cubic-bezier(0.2, 0, 0, 1); }
+  .banner { animation: rise 0.28s cubic-bezier(0.05, 0.7, 0.1, 1); }
+  .sheet.enter { animation: sheet-in 0.34s cubic-bezier(0.05, 0.7, 0.1, 1); }
+  .scrim.enter { animation: fade-in 0.24s linear; }
+}
+@keyframes landed {
+  0%, 35% { box-shadow: 0 0 0 2px var(--ink), 0 0 0 5px var(--gold), 0 0 22px 6px color-mix(in srgb, var(--gold) 65%, transparent); }
+}
+@keyframes rise { from { opacity: 0; transform: translate(-50%, -50%) scale(0.94); } }
+@keyframes sheet-in { from { transform: translateY(40px); opacity: 0.4; } }
+@keyframes fade-in { from { opacity: 0; } }
+
+/* Four-color suits: blue diamonds and green clubs, the classic four-color deck. */
+:root { --diamond: #1b56b8; --club: #18763c; }
+.four-color .card.s-d, .four-color .chip.s-d { color: var(--diamond); }
+.four-color .card.s-c, .four-color .chip.s-c { color: var(--club); }
+.four-color .status .s-d { color: #a9c8ff; }
+.four-color .status .s-c { color: #9be3b1; }
+
+/* Large card corners. */
+.card .rank.big { font-size: 30px; }
+.card .rank.big.ten { font-size: 24px; letter-spacing: -2.6px; }
+
+/* Left-handed: End turn under the left thumb. */
+.left-handed .actions { grid-template-columns: 1.6fr 1fr; }
+.left-handed .actions > :first-child { order: 2; }
+
+/* Settings: a longer sheet scrolls, and the speed choice sits in it. */
+.sheet { max-height: 88vh; overflow-y: auto; }
+.sheet .segmented.in-sheet { margin: 0 0 6px; background: #ece6d6; }
+.sheet .segmented.in-sheet button { color: var(--ink-soft); }
+.sheet .segmented.in-sheet button[aria-pressed="true"] { background: var(--ink); color: var(--cream); }
+.sheet .toggle-row:has(+ .segmented) { border-bottom: 0; min-height: 0; padding-top: 10px; }
+
+/* A big hand: two rows, the back one raised so its corners show above the front one. */
+.hand.two { height: calc(var(--w) * 1.4 + 34px + 46px); }
+/* Each row fans its own cards: --fan and --step are worked out again from the row's own --n. The
+   rows themselves let touches through, so the front row doesn't cover the back row's cards. */
+.hand-row {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --fan: min(2.2deg, calc(18deg / var(--n)));
+  --step: min(calc(var(--w) * 0.62), calc((100cqw - var(--w) - 84px) / max(var(--n) - 1, 1)));
+}
+.hand-row.back .card { bottom: 52px; }
+.hand-row .card { pointer-events: auto; }
+.game:has(.hand.two) .board { --cell: min(108px, calc((var(--vw) - 104px) / 3), calc((100dvh - 486px) / 3.9)); }
+.game.seats-1:has(.hand.two) .board { --cell: min(116px, calc((var(--vw) - 28px) / 3), calc((100dvh - 486px) / 3.9)); }
+
+/* With the aid, the cards that can't be played step back a little (still well above 3:1). */
+.hand.aid .card:not(.playable):not(.picked) { filter: brightness(0.86) saturate(0.85); }
+
+/* A short phone: the family's rows close up a little. */
+@media (max-height: 720px) {
+  .rival-row { padding-block: 7px; }
+  .rival-row .avatar { width: 40px; height: 40px; }
+  .rival-row p { font-size: 12.5px; }
+  .seating { margin-bottom: 12px; }
+}
+
+/* ------------------------------------------------------------------ tablets */
+
+/* A tablet lays the table out like a big phone (index.html), only wider: the cards grow with the
+   height, and rows of buttons keep a phone's span instead of reaching across the screen. */
+@media (min-width: 600px) {
+  .board { --cell: min(132px, calc((var(--vw) - 104px) / 3), calc((100dvh - 440px) / 3.9)); }
+  .game.seats-1 .board { --cell: min(132px, calc((var(--vw) - 28px) / 3), calc((100dvh - 440px) / 3.9)); }
+  .game:has(.hand.two) .board { --cell: min(132px, calc((var(--vw) - 104px) / 3), calc((100dvh - 486px) / 3.9)); }
+  .game.seats-1:has(.hand.two) .board { --cell: min(132px, calc((var(--vw) - 28px) / 3), calc((100dvh - 486px) / 3.9)); }
+  .actions, .home .modes, .home .menu { width: 100%; max-width: 560px; justify-self: center; }
+}
+
+/* On its side (iPhone Duo's inner screen) the layout is wide: the side seats come in beside the
+   cross instead of keeping to the edges, and the other screens and the sheets keep to a column. */
+@media (min-width: 600px) and (orientation: landscape) {
+  .seat.left { left: max(2px, calc(50% - var(--cell) * 1.5 - 78px)); }
+  .seat.right { right: max(2px, calc(50% - var(--cell) * 1.5 - 78px)); }
+  .felt { padding-left: max(var(--sal), calc(50% - 340px)); padding-right: max(var(--sar), calc(50% - 340px)); }
+  .sheet { left: max(0px, calc(50% - 360px)); right: max(0px, calc(50% - 360px)); }
+}

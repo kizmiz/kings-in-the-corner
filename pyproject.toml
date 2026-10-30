@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kitc"
+version = "0.1.0"
+description = "Kings in the Corner: the card game for iOS and Android, its rule bots, and the self-play RL agent behind Nana"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "LicenseRef-Proprietary"
+authors = [{ name = "kizmiz" }]
+# Playing and evaluating the exported agent needs only numpy; training needs PyTorch.
+dependencies = ["numpy>=2"]
+
+[project.optional-dependencies]
+train = ["torch>=2.2"]
+dev = ["pytest>=8", "torch>=2.2"]
+
+[project.scripts]
+kitc-train = "kitc.train:main"
+kitc-eval = "kitc.evaluate:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["kitc"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<script>
+  // A tablet, or iPhone Duo's inner screen, lays the table out like a big phone, as tall as the
+  // largest phones (932 CSS pixels), and the screen scales it up: the cards and type grow with the
+  // screen instead of floating small in the middle of it. Turned on its side (the Duo's inner
+  // screen turns whatever the app asks), the table keeps that height and widens.
+  //
+  // kitcFit takes the size the page has, in points. The iOS shell calls it whenever that changes:
+  // the Duo folding or unfolding, or turning. Until then, and in a browser, the screen's size,
+  // which iOS gives upright whichever way the phone is held.
+  (() => {
+    const meta = document.querySelector('meta[name=viewport]');
+    let shell = false;
+    const fit = (w, h) => {
+      const width = Math.min(w, h) < 600 ? 'device-width, initial-scale=1' : Math.round(w * 932 / h);
+      meta.content = `width=${width}, viewport-fit=cover, user-scalable=no`;
+    };
+    const side = matchMedia('(orientation: landscape)');
+    const fromScreen = () => {
+      if (shell) return;
+      const across = Math.min(screen.width, screen.height);
+      const tall = Math.max(screen.width, screen.height);
+      fit(side.matches ? tall : across, side.matches ? across : tall);
+    };
+    window.kitcFit = (w, h) => { shell = true; fit(w, h); };
+    fromScreen();
+    side.addEventListener('change', fromScreen);
+  })();
+</script>
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a3f25">
+<title>Kings in the Corner</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* The app fills the screen; the table pads itself with the safe areas. */
+  #app { position: fixed; inset: 0; }
+  #app > .felt, #app > .table { height: 100%; }
+  .table-menu { position: absolute; z-index: 6; left: calc(var(--sal) + 12px); top: calc(var(--sat) + 8px); }
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

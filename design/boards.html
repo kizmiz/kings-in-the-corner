@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kings in the Corner boards</title>
+<!-- Design boards. Every screen here is drawn with the app's own stylesheet and renderer
+     (web/style.css, web/render.js), so what you see is what the phones get.
+     Serve the repo root and open /design/boards.html: python3 -m http.server 8790 -->
+<link rel="stylesheet" href="../web/fonts/fonts.css">
+<link rel="stylesheet" href="../web/style.css">
+<style>
+  body.boards { background: #e6e3da; color: var(--ink); padding: 56px 56px 96px; min-width: 1780px; height: auto; }
+  .boards > header { display: grid; grid-template-columns: 1fr 560px; gap: 48px; align-items: end; margin-bottom: 48px; }
+  .boards > header h1 { margin: 0; font: italic 800 80px/0.92 var(--display); color: #0a3f25; letter-spacing: -2px; }
+  .boards > header h1 span { display: block; font: 600 30px/1.1 var(--display); font-style: normal; letter-spacing: .04em; color: var(--ink); margin-top: 8px; }
+  .boards > header p { margin: 0; font-size: 17px; line-height: 1.5; max-width: 36em; }
+  .boards > h2 { font: 700 34px/1 var(--display); margin: 72px 0 24px; }
+  .boards > h2 + p { margin: -12px 0 28px; max-width: 48em; font-size: 16px; }
+
+  .panels { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; }
+  .panel { background: #fbfaf6; border-radius: 12px; padding: 26px; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  .panel h3 { margin: 0 0 16px; font: 800 15px/1.2 var(--text); color: var(--ink-soft); }
+  .panel.on-felt { color: var(--cream); }
+  .panel.on-felt h3 { color: var(--cream-soft); }
+
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .swatch { border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,.18); }
+  .swatch i { display: block; height: 64px; }
+  .swatch div { padding: 7px 9px; font-size: 12.5px; line-height: 1.3; background: #fff; }
+  .swatch b { display: block; font-size: 13.5px; }
+  .swatch-label { grid-column: 1 / -1; font-size: 13px; font-weight: 800; color: var(--ink-soft); margin: 8px 0 -2px; }
+
+  .type-spec .d { font: italic 800 56px/1 var(--display); margin: 0 0 6px; letter-spacing: -1px; }
+  .type-spec .t { font: 800 22px/1.2 var(--text); margin: 0 0 4px; }
+  .type-spec p { margin: 0 0 14px; font-size: 15px; }
+
+  .deck { display: flex; flex-wrap: wrap; gap: 16px; --w: 104px; align-items: flex-end; }
+  .deck figure { margin: 0; display: grid; gap: 8px; justify-items: center; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+  .states { display: flex; gap: 34px; align-items: flex-end; flex-wrap: wrap; }
+  .states figure { margin: 0; display: grid; gap: 10px; justify-items: center; font-size: 13px; font-weight: 700; color: var(--cream); text-align: center; max-width: 120px; }
+  .states .spot { width: 104px; height: 128px; }
+
+  .icons { display: flex; gap: 26px; align-items: center; }
+  .app-icon { width: 170px; height: 170px; position: relative; overflow: hidden; }
+  .app-icon.ios { border-radius: 38px; }
+  .app-icon.round { border-radius: 50%; width: 150px; height: 150px; }
+  .app-icon .card { position: absolute; --w: 92px; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-14deg); }
+  .app-icon.round .card { --w: 78px; }
+
+  .phones { display: flex; flex-wrap: wrap; gap: 48px 40px; }
+  .shot { display: grid; gap: 16px; width: 390px; margin: 0; }
+  .shot figcaption { font-size: 15px; line-height: 1.45; }
+  .shot figcaption b { display: block; font: 700 21px/1.15 var(--display); margin-bottom: 2px; }
+  .phone {
+    --sat: 54px; --sab: 26px;
+    position: relative; width: 390px; height: 844px; border-radius: 54px; overflow: hidden;
+    box-shadow: 0 0 0 10px #111, 0 0 0 12px #3b3f44, 0 30px 60px -20px rgba(0,0,0,.5);
+    background: var(--felt-deep);
+  }
+  .phone > .screen { position: absolute; inset: 0; }
+  .phone::before { content: ""; position: absolute; z-index: 9; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 18px; background: #000; }
+  .phone::after { content: ""; position: absolute; z-index: 9; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: var(--cream); opacity: .7; }
+  .phone.android { border-radius: 40px; --sat: 40px; --sab: 22px; }
+  .phone.android::before { width: 22px; height: 22px; border-radius: 50%; top: 13px; }
+  .phone.android::after { width: 108px; height: 4px; bottom: 9px; }
+  .statusbar { position: absolute; z-index: 8; top: 0; left: 0; right: 0; height: 54px; display: flex; justify-content: space-between; align-items: center; padding: 6px 34px 0; font: 800 16px/1 var(--text); color: var(--cream); }
+  .android .statusbar { height: 40px; padding: 4px 24px 0; font-size: 14px; }
+
+  .panel.on-felt { background: var(--noise), radial-gradient(120% 90% at 50% 42%, var(--felt-light) 0%, var(--felt) 48%, var(--felt-deep) 100%); }
+  .phone .ring, .phone .turn-clock i { animation-play-state: paused; }   /* the boards show one moment of a clock */
+  .spec { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .spec th { text-align: left; font-weight: 800; color: var(--ink-soft); padding: 0 0 8px; }
+  .spec td { padding: 7px 10px 7px 0; border-top: 1px solid var(--rule); vertical-align: top; }
+  .spec td:nth-child(2) { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .panel .note { margin: 14px 0 0; font-size: 14px; color: var(--ink-soft); max-width: 46em; }
+  .curves { display: flex; gap: 18px; margin-bottom: 14px; }
+  .curves figure { margin: 0; display: grid; gap: 6px; justify-items: center; font-size: 12.5px; font-weight: 700; color: var(--cream-soft); }
+  .curves svg { width: 110px; height: 130px; }
+  .curves .axis { stroke: rgba(244, 239, 225, 0.25); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  .curves .curve { stroke: var(--gold); stroke-width: 4; fill: none; stroke-linecap: round; }
+  .storyboard { position: relative; height: 210px; border-radius: 14px; background: rgba(0, 0, 0, 0.18); box-shadow: inset 0 0 0 1px var(--felt-line); --w: 46px; }
+  .sb-seat { position: absolute; left: 10px; top: 70px; display: grid; justify-items: center; gap: 4px; font: 700 13px/1 var(--display); color: var(--cream); }
+  .sb-pile { position: absolute; right: 14px; top: 60%; transform: translateY(-50%); }
+  .sb-card { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 4px; }
+  .sb-card span { font-size: 11px; font-weight: 800; color: var(--cream-soft); white-space: nowrap; }
+</style>
+</head>
+<body class="boards">
+
+<header>
+  <h1>Kings in the Corner<span>and Devils in the Corner</span></h1>
+  <p>A free card game for iPhone and Android. Up to four at the table: you and three of the family, or
+    the family at home on the same Wi-Fi, each on their own phone. A green felt card table with a printed gold line, a classic deck with Bodoni
+    indices and double-headed court cards. In <i>Devils in the Corner</i> the kings open one eye, the
+    felt goes oxblood and the gold turns to ember: a red devil in a corner trades hands, a black one
+    deals the sides into new piles.</p>
+</header>
+
+<h2>Identity</h2>
+<div class="panels">
+  <section class="panel">
+    <h3>Palette</h3>
+    <div class="swatches">
+      <span class="swatch-label">Kings</span>
+      <div class="swatch"><i class="felt"></i><div><b>Felt</b>#14683D</div></div>
+      <div class="swatch"><i style="background:#e9c46a"></i><div><b>Gold</b>#E9C46A, where you can play</div></div>
+      <div class="swatch"><i style="background:#c8102e"></i><div><b>Card red</b>#C8102E</div></div>
+      <div class="swatch"><i style="background:#16181b"></i><div><b>Ink</b>#16181B</div></div>
+      <span class="swatch-label">Devils</span>
+      <div class="swatch"><i class="felt demons"></i><div><b>Oxblood</b>#5A1219</div></div>
+      <div class="swatch"><i style="background:#ff8a3d"></i><div><b>Ember</b>#FF8A3D, where you can play</div></div>
+      <div class="swatch"><i style="background:#fdfcf8"></i><div><b>Card</b>#FDFCF8</div></div>
+      <div class="swatch"><i style="background:#f4efe1"></i><div><b>Cream</b>#F4EFE1, text on felt</div></div>
+    </div>
+  </section>
+  <section class="panel type-spec">
+    <h3>Type</h3>
+    <p class="d">Bodoni Moda</p>
+    <p>The card indices, names at the table and headings. The high-contrast serif of a printed deck.</p>
+    <p class="t">Atkinson Hyperlegible Next</p>
+    <p>Everything you read while playing: status, buttons, rules. Built for low-vision readers, so a line under the cross reads at a glance.</p>
+  </section>
+  <section class="panel">
+    <h3>App icon, iOS and Android</h3>
+    <div class="icons">
+      <div class="app-icon ios felt"><div data-c="Ks"></div></div>
+      <div class="app-icon round felt demons"><div data-c="Kh" data-demon></div></div>
+    </div>
+    <p style="margin:16px 0 0;font-size:15px">A king of spades tilted on the felt. The devil king on oxblood is the alternate icon.</p>
+  </section>
+</div>
+
+<div class="panels" style="grid-template-columns: 1.55fr 1fr; margin-top: 28px">
+  <section class="panel">
+    <h3>The deck</h3>
+    <div class="deck">
+      <figure><div data-c="As"></div>Ace</figure>
+      <figure><div data-c="7h"></div>Seven</figure>
+      <figure><div data-c="Td"></div>Ten</figure>
+      <figure><div data-c="Jc"></div>Jack</figure>
+      <figure><div data-c="Qh"></div>Queen</figure>
+      <figure><div data-c="Ks"></div>King</figure>
+      <figure><div data-c="Kh" data-demon></div>Red devil</figure>
+      <figure><div data-c="Kc" data-demon></div>Black devil</figure>
+      <figure><div data-back></div>Back</figure>
+    </div>
+    <p style="margin:18px 0 0;font-size:15px;max-width:52em">Classic pip layouts, Bodoni indices in two corners, and court cards in a frame, mirrored top to bottom, in red, blue and gold. In Devils in the Corner each king opens a burning eye on his crown, with a small eye under the index, so a devil reads even half covered. Classic kings never have one.</p>
+  </section>
+  <section class="panel on-felt felt">
+    <h3>On the felt</h3>
+    <div class="states">
+      <figure><div class="spot side n" data-spot-demo="Th,9s,8h"></div>A pile: its first card, its top card</figure>
+      <figure><div class="spot side n target" data-spot-demo="9d"></div>Your card can go here</figure>
+      <figure><div class="spot side n target" data-spot-demo=""></div>An empty side takes any card</figure>
+      <figure><div class="spot corner nw" data-spot-demo="-"></div>Corners take kings</figure>
+    </div>
+  </section>
+</div>
+
+<h2>Screens</h2>
+<p>Portrait phone at 390 × 844, four at the table. You sit at the bottom with your hand fanned at your edge; the rivals sit across and to either side, their cards fanned toward the cross.</p>
+
+<div class="phones">
+
+  <figure class="shot">
+    <div class="phone"><div class="statusbar"><span>9:41</span><span></span></div>
+      <div class="screen felt home">
+        <div class="corner-king nw" data-c="Kc"></div><div class="corner-king ne" data-c="Kh"></div>
+        <div class="title"><span class="kings">Kings</span> <span class="rest">in the Corner</span></div>
+        <div class="modes">
+          <button class="mode" aria-pressed="true"><div data-c="Ks"></div><b>Kings</b><small>The classic game</small></button>
+          <button class="mode demons-mode" aria-pressed="false"><div data-c="Ks" data-demon></div><b>Devils</b><small>Kings become devils with powers</small></button>
+        </div>
+        <div class="menu">
+          <button class="btn">Play</button>
+          <button class="btn plain">Play on Wi-Fi</button>
+          <button class="btn plain">How to play</button>
+        </div>
+        <div class="foot"><button class="icon-btn" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.9 1.9M16.6 16.6l1.9 1.9M5.5 18.5l1.9-1.9M16.6 7.4l1.9-1.9"/></svg></button></div>
+      </div>
+    </div>
+    <figcaption><b>Home</b>Two kings hold the top corners. Pick the game, Kings or Devils, then Play against the family, or Play on Wi-Fi with the family at home, each on their own phone.</figcaption>
+  </figure>
+
+  <figure class="shot">
+    <div class="phone"><div class="statusbar"><span>9:41</span><span></span></div>
+      <div class="screen felt" style="display:grid;grid-template-rows:auto auto auto auto auto 1fr auto">
+        <div class="top-row"><button class="icon-btn" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button></div>
+        <h1 class="screen-title">Who’s at the table?</h1>
+        <p class="screen-sub">Up to three of the family. Seats fill clockwise from your left.</p>
+        <div class="segmented" role="group" aria-label="Players"><button aria-pressed="false">2 players</button><button aria-pressed="false">3 players</button><button aria-pressed="true">4 players</button></div>
+        <div class="seating">
+          <div class="label">The table</div>
+          <div class="chair left"><span data-avatar="ray"></span>Ray</div>
+          <div class="chair top"><span data-avatar="nana"></span>Nana</div>
+          <div class="chair right"><span data-avatar="june"></span>June</div>
+          <div class="chair you"><span class="you-dot">You</span></div>
+        </div>
+        <div class="family">
+          <button class="rival-row" aria-pressed="false"><span data-avatar="pip"></span><div><h3>Pip<span class="level" data-level="1"></span></h3><p>The little cousin. Plays a card or two, then loses interest.</p></div><span class="seated"></span></button>
+          <button class="rival-row" aria-pressed="true"><span data-avatar="ray"></span><div><h3>Uncle Ray<span class="level" data-level="2"></span></h3><p>Lays down everything he can, every turn.</p></div><span class="seated">Left</span></button>
+          <button class="rival-row" aria-pressed="true"><span data-avatar="june"></span><div><h3>Aunt June<span class="level" data-level="3"></span></h3><p>Thinks the whole turn through. Never leaves you a gap.</p></div><span class="seated">Right</span></button>
+          <button class="rival-row" aria-pressed="true"><span data-avatar="nana"></span><div><h3>Nana<span class="level" data-level="4"></span></h3><p>Learned the game from June, then learned to beat her.</p></div><span class="seated">Across</span></button>
+        </div>
+        <div class="pick-foot"><button class="btn" style="width:100%">Deal</button></div>
+      </div>
+    </div>
+    <figcaption><b>Who’s at the table</b>Choose two to four players, then tap the family members to seat them. The little table shows exactly who sits where before the deal.</figcaption>
+  </figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="yourturn"></div></div>
+    <figcaption><b>Your turn</b>You drew automatically. Tap a card and the places it can go light up in gold; tap one to play it there. The tally counts this turn’s plays, and Undo takes any of them back before you end the turn.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="theirturn"></div></div>
+    <figcaption><b>A rival’s turn</b>Their plate lights up and their cards slide to the cross one at a time. Each play is named under the cross, and their portrait stays on the card they just played.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="movepile"></div></div>
+    <figcaption><b>Moving a pile</b>Tap a pile to lift it whole. It moves by its first card, so the strip peeking above shows what it needs: the pile from the black 9 goes onto the red 10, and the emptied side takes any card.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="redswap"></div></div>
+    <figcaption><b>A red devil</b>In Devils in the Corner, Nana sets the devil of hearts in a corner and the hands trade: Nana’s six cards are yours now, and Nana plays on with your two.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="blackrebuild"></div></div>
+    <figcaption><b>A black devil</b>You play the devil of clubs into a corner and the sides are dealt into new piles: the same four piles, still building down in alternate colors, with new cards on top.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="stockout"></div></div>
+    <figcaption><b>Stock’s out</b>With the stock gone the middle counts passes. If everyone passes in a row, whoever holds the fewest cards wins.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="won"></div></div>
+    <figcaption><b>You went out</b>One line per player: who went out and what everyone was left holding, with your record at this table.</figcaption></figure>
+
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="headsup"></div></div>
+    <figcaption><b>Heads-up with Nana</b>With one rival she takes the seat across and the cross grows to use the room.</figcaption></figure>
+
+  <figure class="shot">
+    <div class="phone"><div class="statusbar"><span>9:41</span><span></span></div>
+      <div class="screen felt" style="overflow:hidden">
+        <div class="top-row"><button class="icon-btn" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button></div>
+        <h1 class="screen-title">How to play</h1>
+        <div class="rules">
+          <section class="rule"><h3>Get rid of your cards</h3><p>Everyone gets seven. Start each turn by drawing one, then play as many as you like. The first to play their last card wins.</p></section>
+          <section class="rule"><h3>Build down, change color</h3><p>A card goes on a card one higher of the other color. Any card fills an empty side; only a king starts a corner.</p>
+            <div class="demo"><div data-c="9s"></div><div data-c="8h" data-cls="on"></div><span class="arrow" style="margin-left:18px"></span><div data-c="Ks"></div><div data-c="Qd" data-cls="on"></div></div></section>
+          <section class="rule"><h3>Move whole piles</h3><p>A pile moves onto another if its first card fits there.</p></section>
+          <section class="rule"><h3>Stock’s out</h3><p>If the stock is gone and everyone passes in a row, the fewest cards wins. Same count, it’s a tie.</p></section>
+          <section class="rule demons-rule"><h3><span data-eye></span>Devils in the Corner</h3><p>Kings are devils. Play one from your hand into a corner and it acts: a <b>red devil</b> trades your hand with a rival’s, a <b>black devil</b> deals the sides into new piles.</p>
+            <div class="demo"><div data-c="Kh" data-demon></div><div data-c="Kc" data-demon></div></div></section>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>How to play</b>Rules in plain words, with the cards themselves where a picture helps, and the devils set apart on oxblood.</figcaption>
+  </figure>
+
+  <figure class="shot"><div class="phone android"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-table="android"></div></div>
+    <figcaption><b>Devils, four players, on Android</b>The same table on a Pixel, safe areas from the system. Empty corners show the eye: only a devil sits there.</figcaption></figure>
+
+</div>
+
+<h2>Refinements</h2>
+<p>From a round of design research: card games that feel good move cards like hands do, keep every target big enough for a thumb, never say anything by colour alone, and give a timer a warning, a way to ask for more, and an off switch. The rivals now take their time: a moment to think, then each card flies from their seat, lifts, glides and settles where it lands, and the line under the cross stays up until their next move.</p>
+
+<div class="panels" style="grid-template-columns: 1.15fr 1fr; margin-bottom: 40px">
+  <section class="panel">
+    <h3>Motion</h3>
+    <table class="spec">
+      <tr><th>Moment</th><th>Time</th><th>Curve</th></tr>
+      <tr><td>Picking up a card in your hand</td><td>180 ms</td><td>small overshoot</td></tr>
+      <tr><td>Your card flying to a pile</td><td>380 ms</td><td>glide: decelerate</td></tr>
+      <tr><td>A rival's card flying from their seat</td><td>620 ms</td><td>glide, lifting to 107% at 45%</td></tr>
+      <tr><td>Holding a rival's move in view</td><td>about 0.7 s more</td><td>the landed card glows, then fades</td></tr>
+      <tr><td>A rival thinking before their turn</td><td>0.9 s</td><td></td></tr>
+      <tr><td>Your hand closing up after a play</td><td>300 ms</td><td>standard</td></tr>
+      <tr><td>A drawn card arriving from the stock</td><td>460 ms</td><td>glide, fading in</td></tr>
+      <tr><td>Sheets and devil banners opening</td><td>280 to 340 ms</td><td>glide</td></tr>
+    </table>
+    <p class="note">Rival speed in Settings stretches the rivals' pace to 140% (Relaxed) or shrinks it to 55% (Quick); tapping the table during a rival's turn hurries the rest of it. With Reduce Motion on, cards cross-fade into place instead of travelling. No haptics for the rivals' moves, only for yours and for a devil's power.</p>
+  </section>
+  <section class="panel on-felt felt">
+    <h3>The three curves, and a rival's card in flight</h3>
+    <div class="curves">
+      <figure><svg viewBox="-8 -48 116 156"><path d="M0 100 L100 0" class="axis"/><path d="M0 100 C5 30 10 0 100 0" class="curve"/></svg>Glide (0.05, 0.7, 0.1, 1)</figure>
+      <figure><svg viewBox="-8 -48 116 156"><path d="M0 100 L100 0" class="axis"/><path d="M0 100 C20 100 0 0 100 0" class="curve"/></svg>Standard (0.2, 0, 0, 1)</figure>
+      <figure><svg viewBox="-8 -48 116 156"><path d="M0 100 L100 0" class="axis"/><path d="M0 100 C34 -40 64 0 100 0" class="curve"/></svg>Lift (0.34, 1.4, 0.64, 1)</figure>
+    </div>
+    <div class="storyboard" id="storyboard"></div>
+  </section>
+</div>
+
+<div class="phones">
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" id="r-wifi"></div></div>
+    <figcaption><b>Play on Wi-Fi</b>Your name and a picture for the table: your initial on a colour of its own, a suit, a crown, the devil's eye or one of four friendly ones. A phone that lost its table offers to go back to it.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" id="r-host"></div></div>
+    <figcaption><b>Hosting a table</b>The host chooses the game, the players, the play aid and the turn timer. Deal waits until the play aid is chosen; the timer starts off.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" id="r-guest"></div></div>
+    <figcaption><b>Waiting at a table</b>Everyone sees the table's rules before the deal, and can change their name and picture while they wait.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="timed"></div></div>
+    <figcaption><b>A timed turn</b>A bar drains above your buttons and the seconds count down. In the last quarter (at least ten seconds) it turns red, ticks under your thumb, and offers 30 seconds more, once a turn.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="ring"></div></div>
+    <figcaption><b>Someone else's clock</b>A ring drains round the portrait of whoever is on the clock. The seconds themselves show only on the phone whose turn it is.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="away"></div></div>
+    <figcaption><b>Someone stepped away</b>Their seat is kept and play stops at their turn. Only the host can let Aunt June play it until they're back.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="flight"></div></div>
+    <figcaption><b>A rival's card in flight</b>June's 9 leaves her seat, lifts, and glides to the North pile; the line under the cross names the move and stays until her next one.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="pile"></div></div>
+    <figcaption><b>A whole pile</b>Tap the count, hold the pile down or tap it twice: every card in it, from the first to the top.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="noaid"></div></div>
+    <figcaption><b>No play aid</b>Nothing lights up. A card tried in the wrong place buzzes and says so, and stays in your hand.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen four-color" data-r="fourcolor"></div></div>
+    <figcaption><b>Four colours, large corners</b>Blue diamonds and green clubs, and a bigger rank and suit in every corner, for anyone who wants them.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen demons" data-r="bighand"></div></div>
+    <figcaption><b>A big hand</b>A red devil can hand you fifteen cards. Past ten they go in two rows, so every card keeps a strip wide enough for a thumb; with the aid, the ones you can play stand up and the rest step back.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="settings"></div></div>
+    <figcaption><b>Settings</b>The play aid, rival speed, four-colour suits, large corners, left-handed buttons and haptics, in one sheet that scrolls.</figcaption></figure>
+  <figure class="shot"><div class="phone"><div class="statusbar"><span>9:41</span><span></span></div><div class="screen" data-r="won"></div></div>
+    <figcaption><b>You won!</b>The result leads with who won, then why: out first, or the fewest cards when the stock ran out.</figcaption></figure>
+</div>
+
+<script type="module">
+  import { installSprites, cardHTML, backHTML, pileHTML, avatarHTML, tableHTML, cardShort, eyeHTML, chipsHTML, PICTURE_IDS, setCardStyle } from '../web/render.js';
+  installSprites();
+
+  for (const el of document.querySelectorAll('[data-c]')) {
+    const cls = [el.className, el.dataset.cls].filter(Boolean).join(' ');
+    el.outerHTML = cardHTML(el.dataset.c, cls, 'div', 'demon' in el.dataset);
+  }
+  for (const el of document.querySelectorAll('[data-back]')) el.outerHTML = backHTML();
+  for (const el of document.querySelectorAll('[data-avatar]')) el.outerHTML = avatarHTML(el.dataset.avatar);
+  for (const el of document.querySelectorAll('[data-eye]')) el.outerHTML = eyeHTML();
+  for (const el of document.querySelectorAll('[data-level]')) {
+    const n = Number(el.dataset.level);
+    el.innerHTML = [1, 2, 3, 4].map((i) => `<i class="${i <= n ? '' : 'off'}"></i>`).join('');
+    el.setAttribute('aria-label', `Level ${n} of 4`);
+  }
+  for (const el of document.querySelectorAll('[data-spot-demo]')) {
+    const v = el.dataset.spotDemo;
+    el.innerHTML = v === '-' ? '<div class="slot"><span>K</span></div>' : v ? pileHTML(v.split(',')) : '<div class="slot"></div>';
+  }
+
+  const S = (c) => `<span class="${'hd'.includes(c.at(-1)) ? 'red' : ''}">${cardShort(c)}</span>`;
+  const sheet = (inner) => `<div class="scrim"></div><div class="sheet">${inner}</div>`;
+  const mini = chipsHTML;
+
+  const four = [
+    { pos: 'left', who: 'ray', name: 'Ray', count: 6 },
+    { pos: 'top', who: 'nana', name: 'Nana', count: 5 },
+    { pos: 'right', who: 'june', name: 'June', count: 4 },
+  ];
+  const spots = { n: ['Th', '9s'], e: ['5c'], s: ['Qd', 'Js'], w: [], ne: ['Kh'], se: [], sw: ['Kc', 'Qh'], nw: [] };
+  const base = { variant: 'classic', seats: four, spots, stock: 14, hand: ['2c', '4h', '8d', '9h', 'Jd', 'Qs', 'Ks', '6s'], actions: { undo: true } };
+
+  const tables = {
+    yourturn: { ...base, picked: '8d', targets: new Set(['n', 'w']), playable: new Set(['8d', '4h', 'Ks', 'Jd', 'Qs']),
+      status: `Your turn. You drew ${S('8d')} <span class="tally">2 played</span>` },
+    theirturn: { ...base, seats: four.map((s) => (s.who === 'ray' ? { ...s, count: 5, turn: true, note: 'Playing…' } : s)),
+      spots: { ...spots, s: ['Qd', 'Js', 'Th'] }, fresh: 's', freshBy: 'ray', hand: ['2c', '4h', '8d', '9h', 'Jd', 'Qs', 'Ks'],
+      actions: { undo: false, end: false, endLabel: 'Ray’s turn' }, status: `Ray played ${S('Th')} on ${S('Js')}` },
+    movepile: { ...base, spots: { ...spots, e: ['Td'], n: ['9s', '8h'] }, lifted: 'n', targets: new Set(['e']),
+      status: `Move the pile from ${S('9s')} onto a red 10` },
+    redswap: { ...base, variant: 'demons', seats: four.map((s) => (s.who === 'nana' ? { ...s, count: 2, turn: true, note: 'Took your hand' } : s)),
+      spots: { ...spots, se: ['Kh'], ne: ['Ks'] }, hand: ['3d', '7c', 'Jh', '5s', 'Tc', '2d'], fresh: 'se', freshBy: 'nana',
+      actions: { undo: false, end: false, endLabel: 'Nana’s turn' }, status: 'Nana’s devil traded hands with you',
+      banner: { kind: 'swap', title: 'Hands traded', text: 'Nana played the red devil and took your hand. Nana’s six cards are yours now.' } },
+    blackrebuild: { ...base, variant: 'demons', spots: { n: ['9d', '8c'], e: ['Js', 'Th', '9c'], s: ['5h'], w: ['Qc', 'Jd'], ne: ['Kh'], se: [], sw: ['Kc'], nw: ['Ks', 'Qd'] },
+      hand: ['2c', '4h', '8d', '6s', '7h'], fresh: 'sw', actions: { undo: false },
+      status: 'Your devil redealt the sides <span class="tally">1 played</span>',
+      banner: { kind: 'rebuild', title: 'The sides are redealt', text: 'Four new piles, still down and alternating.' } },
+    stockout: { ...base, stock: 0, passes: 2, players: 4, seats: four.map((s) => ({ ...s, count: s.count - 2 })),
+      hand: ['2c', '6s', 'Jd', '4h'], actions: { undo: false, ready: true, endLabel: 'Pass' },
+      status: '<span class="hint">No plays left. If you pass and Ray does too, June wins on fewer cards.</span>' },
+    won: { ...base, hand: [], actions: { undo: false, end: false } },
+    headsup: { ...base, seats: [{ pos: 'top', who: 'nana', name: 'Nana', count: 6 }], status: `Your turn. You drew ${S('Jd')}` },
+    android: { ...base, variant: 'demons', spots: { ...spots, sw: [], ne: ['Kh'] }, picked: 'Ks', targets: new Set(['sw', 'se', 'nw', 'w']),
+      playable: new Set(['Ks', '8d']), status: 'Your turn. Set the devil in a corner to unleash it' },
+  };
+
+  const overlays = {
+    won: sheet(`<div class="result-mark">${avatarHTML('nana', 'big')}<div><h2>You went out!</h2><p style="margin:0">First to play your last card, in 14 turns.</p></div></div>
+      <table class="tally-table">
+        <tr class="won"><td><span class="who">You</span></td><td>Out</td></tr>
+        <tr><td><span class="who">${avatarHTML('june')}June</span></td><td>${mini(['3d', '7c'])}</td></tr>
+        <tr><td><span class="who">${avatarHTML('nana')}Nana</span></td><td>${mini(['Jh', '5s', '9c'])}</td></tr>
+        <tr><td><span class="who">${avatarHTML('ray')}Ray</span></td><td>${mini(['2s', '6d', 'Tc', 'Ah'])}</td></tr>
+      </table>
+      <div class="row"><button class="btn plain">Change table</button><button class="btn">Play again</button></div>`),
+  };
+
+  for (const el of document.querySelectorAll('[data-table]')) {
+    const id = el.dataset.table;
+    el.innerHTML = tableHTML(tables[id]) + (overlays[id] ?? '');
+    el.firstElementChild.style.height = '100%';
+  }
+  // ---------------------------------------------------------------- refinements
+  const person = (name, pic) => `@${name}|${pic}`;
+  const back = '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
+  const pictures = (mine) => PICTURE_IDS.map((id) => `<button class="pick" aria-checked="${id === mine}">${avatarHTML(person('Sam', id))}</button>`).join('');
+  const seg = (items, on) => items.map((x) => `<button aria-pressed="${x === on}">${x}</button>`).join('');
+  const seatChairs = (chairs) => `<div class="seating"><div class="label">Kings in the Corner</div>${chairs}<div class="chair you"><span class="you-dot">You</span></div></div>`;
+
+  document.getElementById('r-wifi').outerHTML = `<div class="screen felt" style="position:absolute;inset:0">
+    <div class="top-row"><button class="icon-btn">${back}</button></div>
+    <h1 class="screen-title">Play on Wi-Fi</h1>
+    <p class="screen-sub">Family at home on the same Wi-Fi sit at one table, each on their own phone. Empty seats go to the family.</p>
+    <div class="menu" style="margin:0 16px 12px"><button class="btn">Back to Alex’s table<small>Your seat there is kept for you</small></button></div>
+    <label class="field"><span>Your name</span><input value="Sam"></label>
+    <div class="field"><span>Your picture</span><div class="pictures">${pictures('cat')}</div></div>
+    <div class="menu" style="margin:6px 16px 0">
+      <button class="btn plain">Host a table<small>Others on the same Wi-Fi join your table</small></button>
+      <button class="btn plain">Join a table<small>Find a table someone opened on this Wi-Fi</small></button>
+    </div></div>`;
+
+  document.getElementById('r-host').outerHTML = `<div class="screen felt" style="position:absolute;inset:0;overflow:hidden">
+    <div class="top-row"><button class="icon-btn">${back}</button><button class="btn plain small-btn">${avatarHTML(person('Alex', 'crown'))}Name and picture</button></div>
+    <h1 class="screen-title">Alex’s table</h1>
+    <p class="screen-sub">Family on the same Wi-Fi can join now: Play on Wi-Fi, then Join a table.</p>
+    <div class="segmented" style="margin-bottom:10px">${seg(['2 players', '3 players', '4 players'], '3 players')}</div>
+    <div class="aid-choice"><h3>Play aid at this table</h3><p>The aid raises the cards you can play, lights up where they go and says when you’re out of plays.</p>
+      <div class="segmented two">${seg(['Allowed', 'No play aid'], 'Allowed')}</div></div>
+    <div class="aid-choice"><h3>Turn timer</h3><p>Each turn gets this long. When the time runs out, the turn ends.</p>
+      <div class="segmented four">${seg(['No timer', '30s', '60s', '2 min'], '60s')}</div></div>
+    <div class="family">
+      <div class="lobby-row">${avatarHTML(person('Sam', 'cat'))}<b>Sam</b></div>
+      <div class="lobby-row open">${avatarHTML('nana')}<span>Open seat: Nana plays until someone joins</span></div>
+    </div>
+    <div class="pick-foot" style="position:absolute;left:0;right:0;bottom:0"><button class="btn" style="width:100%">Deal</button></div></div>`;
+
+  document.getElementById('r-guest').outerHTML = `<div class="screen felt" style="position:absolute;inset:0;display:grid;grid-template-rows:auto auto auto auto 1fr auto">
+    <div class="top-row"><button class="icon-btn">${back}</button><button class="btn plain small-btn">${avatarHTML(person('Sam', 'cat'))}Name and picture</button></div>
+    <h1 class="screen-title">Alex’s table</h1>
+    <p class="screen-sub">Kings in the Corner. 3 players. Play aid allowed at this table. 60 seconds a turn.</p>
+    ${seatChairs(`<div class="chair left">${avatarHTML('nana')}Nana</div><div class="chair right">${avatarHTML(person('Alex', 'crown'))}Alex</div>`)}
+    <p class="screen-sub searching" style="text-align:center">Waiting for Alex to deal</p>
+    <div class="pick-foot"><button class="btn plain" style="width:100%">Leave table</button></div></div>`;
+
+  const three = [
+    { pos: 'left', who: 'nana', name: 'Nana', count: 6 },
+    { pos: 'right', who: person('Alex', 'crown'), name: 'Alex', count: 5 },
+  ];
+  const sp = { n: ['Th', '9s'], e: ['5c'], s: ['Qd', 'Js'], w: ['4d'], ne: ['Kh'], se: [], sw: ['Kc', 'Qh'], nw: [] };
+  const R = { variant: 'classic', seats: three, spots: sp, stock: 12, hand: ['2c', '4h', '8d', '9h', 'Jd', 'Qs', 'Ks'], actions: { undo: true } };
+  const tables2 = {
+    timed: { ...R, picked: '8d', targets: new Set(['n']), playable: new Set(['8d', 'Ks', 'Jd']),
+      clock: { total: 60000, elapsed: 47000, more: '+30s' }, status: `Choose where ${S('8d')} goes <span class="tally">1 played</span>` },
+    ring: { ...R, seats: three.map((x) => (x.name === 'Alex' ? { ...x, turn: true, note: 'Playing…', clock: { total: 60000, elapsed: 21000 } } : x)),
+      actions: { undo: false, end: false, endLabel: 'Alex’s turn' }, status: 'Alex is thinking' },
+    away: { ...R, seats: three.map((x) => (x.name === 'Alex' ? { ...x, who: person('Sam', 'cat'), name: 'Sam', turn: true, away: true, note: 'Away' } : x)),
+      actions: { undo: false, end: false, endLabel: 'Sam’s turn' }, status: 'Waiting for Sam to come back' },
+    flight: { ...R, seats: [{ pos: 'left', who: 'june', name: 'June', count: 5, turn: true, note: 'Playing…' }, three[1]],
+      spots: { ...sp, n: ['Th', '9s', '8h'] }, fresh: 'n', freshBy: 'june', actions: { undo: false, end: false, endLabel: 'June’s turn' }, status: `June played ${S('8h')} on ${S('9s')}` },
+    pile: { ...R, spots: { ...sp, n: ['Kd', 'Qs', 'Jh', 'Ts', '9h'] } },
+    noaid: { ...R, picked: '9h', status: `<span class="hint">${S('9h')} doesn’t go there</span>` },
+    fourcolor: { ...R, playable: new Set(['8d', 'Ks', 'Jd']), status: `Your turn. You drew ${S('8d')}` },
+    settings: R, won: { ...R, hand: [], actions: { undo: false, end: false } },
+    bighand: { ...R, variant: 'demons', hand: ['As', '3s', '6s', '9s', 'Js', '2h', '5h', '7h', 'Qh', '4d', '8d', 'Td', '3c', '6c', '9c'],
+      playable: new Set(['9h', '3s', '8d', 'Td']), status: 'Nana’s devil traded hands with you. Those 15 cards are yours now.' },
+  };
+  const sheet2 = (inner) => `<div class="scrim"></div><div class="sheet">${inner}</div>`;
+  const toggle = (label, help, on) => `<div class="toggle-row"><span>${label}${help ? `<small>${help}</small>` : ''}</span><button class="switch" aria-checked="${on}"></button></div>`;
+  const over2 = {
+    pile: sheet2(`<h2>North pile</h2><p style="margin:0">5 cards</p><div class="pile-view" style="--n:5">${['Kd', 'Qs', 'Jh', 'Ts', '9h'].map((c, i) => `<div class="pv">${cardHTML(c)}<span>${i === 0 ? 'First card' : i === 4 ? 'Top card' : ''}</span></div>`).join('')}</div><button class="btn" style="width:100%">Close</button>`),
+    settings: sheet2(`<h2>Settings</h2>${toggle('Play aid', 'Raises the cards you can play, lights up where they go and says when you’re out of plays', true)}
+      <div class="toggle-row"><span>Rival speed<small>How long the others take over each move. Tap the table to hurry a turn along.</small></span></div>
+      <div class="segmented three in-sheet">${seg(['Relaxed', 'Normal', 'Quick'], 'Relaxed')}</div>
+      ${toggle('Four-color suits', 'Diamonds blue and clubs green, so no two suits share a color', false)}
+      ${toggle('Large card corners', 'Bigger rank and suit in the corner of every card', true)}
+      ${toggle('Left-handed', 'End turn on the left, under your thumb', false)}
+      <div class="row" style="margin-top:14px"><button class="btn plain">Leave game</button><button class="btn">Done</button></div>`),
+    won: sheet2(`<div class="result-mark"><div><h2>You won!</h2><p style="margin:0">You played your last card first, in 11 turns.</p></div></div>
+      <table class="tally-table"><tr class="won"><td><span class="who">You</span></td><td>Out</td></tr>
+      <tr><td><span class="who">${avatarHTML(person('Alex', 'crown'))}Alex</span></td><td>${chipsHTML(['3d', '7c'])}</td></tr>
+      <tr><td><span class="who">${avatarHTML('nana')}Nana</span></td><td>${chipsHTML(['Jh', '5s', '9c'])}</td></tr></table>
+      <div class="row"><button class="btn plain">Close table</button><button class="btn">Play again</button></div>`),
+  };
+  for (const el of document.querySelectorAll('[data-r]')) {
+    const id = el.dataset.r;
+    if (id === 'fourcolor') setCardStyle({ bigIndex: true });
+    el.classList.add('table');
+    let html = tableHTML(tables2[id]);
+    if (id === 'away') html = html.replace('<p class="status"', `<div class="away-bar">${avatarHTML(person('Sam', 'cat'))}<span>Sam is away</span><button class="btn">Let Aunt June play</button></div><p class="status"`);
+    el.innerHTML = html + (over2[id] ?? '');
+    el.firstElementChild.style.height = '100%';
+    if (id === 'timed') el.querySelector('.turn-clock .clock').textContent = '0:13', el.querySelector('.game').classList.add('clock-low');
+    if (id === 'flight') {
+      const top = el.querySelector('.spot.n .pile .top');
+      top.style.cssText += ';z-index:6;translate:-58px 62px;scale:1.07;box-shadow:0 14px 26px rgba(0,0,0,.45)';
+    }
+    setCardStyle({ bigIndex: false });
+  }
+
+  // The storyboard: where a rival's card is at even steps of its 620 ms, on the glide curve.
+  const steps = [0, 0.1, 0.2, 0.35, 0.55, 1];
+  const along = (t) => { // y of cubic-bezier(0.05, 0.7, 0.1, 1) at time t, by bisection on x
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 30; i++) {
+      const u = (lo + hi) / 2;
+      const x = 3 * (1 - u) ** 2 * u * 0.05 + 3 * (1 - u) * u ** 2 * 0.1 + u ** 3;
+      if (x < t) lo = u; else hi = u;
+    }
+    const u = (lo + hi) / 2;
+    return 3 * (1 - u) ** 2 * u * 0.7 + 3 * (1 - u) * u ** 2 + u ** 3;
+  };
+  const board = document.getElementById('storyboard');
+  board.innerHTML = `<div class="sb-seat">${avatarHTML('june')}<b>June</b></div><div class="sb-pile">${cardHTML('9s')}</div>`
+    + steps.map((t, i) => {
+      const p = along(t);
+      const scale = 1 + 0.07 * Math.sin(Math.min(1, p / 0.9) * Math.PI);
+      return `<div class="sb-card" style="left:${8 + p * 74}%;top:${62 - Math.sin(p * Math.PI) * 26}%;scale:${scale.toFixed(3)};opacity:${i === steps.length - 1 ? 1 : 0.3 + i * 0.1}">${cardHTML('8h')}<span>${Math.round(t * 620)} ms</span></div>`;
+    }).join('');
+
+</script>
+</body>
+</html>

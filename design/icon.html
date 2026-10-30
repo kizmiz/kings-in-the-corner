@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App icon</title>
+<!-- The app icon, drawn with the app's own card: ?kind=ios (1024 square on felt, iOS masks the
+     corners) or ?kind=android (432 square, the adaptive icon's foreground on transparent; the felt
+     is its background layer). design/render-icons.js photographs both. -->
+<link rel="stylesheet" href="../web/fonts/fonts.css">
+<link rel="stylesheet" href="../web/style.css">
+<style>
+  html, body { margin: 0; height: auto; background: transparent; }
+  #icon { position: relative; overflow: hidden; }
+  .ios #icon { width: 1024px; height: 1024px; }
+  .android #icon { width: 432px; height: 432px; background: none; }
+  #icon .card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-12deg); }
+  .ios #icon .card { --w: 500px; box-shadow: 0 0 0 2px var(--card-edge), 0 24px 60px rgba(0, 0, 0, 0.45); }
+  .android #icon .card { --w: 172px; box-shadow: 0 0 0 1px var(--card-edge), 0 10px 24px rgba(0, 0, 0, 0.4); }
+</style>
+</head>
+<body>
+<div id="icon"></div>
+<script type="module">
+  import { installSprites, cardHTML } from '../web/render.js';
+  installSprites();
+  const kind = new URLSearchParams(location.search).get('kind') ?? 'ios';
+  document.body.classList.add(kind);
+  const icon = document.getElementById('icon');
+  if (kind === 'ios') icon.classList.add('felt');
+  icon.innerHTML = cardHTML('Ks');
+</script>
+</body>
+</html>

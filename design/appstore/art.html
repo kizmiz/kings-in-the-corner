@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Header and search art</title>
+<!-- The App Store's product page header (3840 x 1646) and search results card (3840 x 2560), drawn
+     with the app's own felt, cards and portraits: ?kind=header|search&lang=en|de, plus &guides to
+     outline the art-safe area from Apple's templates. Anything that matters stays inside it, since
+     iPhone crops the rest; outside it is only table. The stage is laid out at half size and zoomed,
+     so a CSS pixel here is two in the image. .playwright-cli/creative.js photographs them. -->
+<link rel="stylesheet" href="../../web/fonts/fonts.css">
+<link rel="stylesheet" href="../../web/style.css">
+<style>
+  html, body { margin: 0; height: auto; background: var(--felt-deep); }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .stage { position: relative; zoom: 2; width: 1920px; overflow: hidden; }
+  .header .stage { height: 823px; }
+  .search .stage { height: 1280px; }
+  .stage > * { position: absolute; }
+
+  /* The one line of words: the title's voice, gold italic on the felt. */
+  .say {
+    margin: 0;
+    font: italic 800 72px/0.98 var(--display);
+    letter-spacing: -1px;
+    color: var(--gold-hi);
+    text-shadow: 0 2px 0 var(--gold-lo), 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  /* ---------------------------------------------------------------- the header */
+
+  /* The table, as on "Who's at the table?": a printed line round the felt, the family at it, and
+     your chair, empty and lit the gold that means "you can play here". */
+  .oval { left: 604px; top: 300px; width: 712px; height: 224px; border: 2.5px solid var(--felt-line); border-radius: 999px; }
+  .oval::after { content: ""; position: absolute; inset: 7px; border: 1.25px solid var(--felt-line); border-radius: 999px; opacity: 0.6; }
+  .chair { width: 92px; height: 92px; transform: translate(-50%, -50%); }
+  .chair .avatar { width: 100%; height: 100%; box-shadow: 0 0 0 3px rgba(244, 239, 225, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5); }
+  .chair.you {
+    border-radius: 50%;
+    border: 3px dashed var(--gold);
+    background: radial-gradient(color-mix(in srgb, var(--gold) 30%, transparent), color-mix(in srgb, var(--gold) 12%, transparent));
+    box-shadow: 0 0 22px 4px color-mix(in srgb, var(--gold) 55%, transparent);
+  }
+  .header .say { left: 960px; top: 411px; transform: translate(-50%, -54%); white-space: nowrap; }
+
+  /* A king in each corner of the picture, turned as the corner piles are on the table. */
+  .king { --w: 236px; transform: translate(-50%, -50%) rotate(var(--turn)); box-shadow: 0 0 0 1px var(--card-edge), 0 14px 34px rgba(0, 0, 0, 0.5); }
+
+  /* ---------------------------------------------------------------- the search card */
+
+  .search .say { left: 440px; top: 640px; transform: translateY(-50%); font-size: 84px; }
+  .board-art { --cell: 116px; }
+  .board-art .depth, .board-art .count { display: none; }
+  .board-art .spot.target .slot { box-shadow: 0 0 0 3px var(--gold), 0 0 28px 8px color-mix(in srgb, var(--gold) 75%, transparent); }
+  .board-art .slot span { font-size: 30px; color: var(--gold-hi); }
+  .rim { width: 388px; height: 484px; border: 2px solid var(--felt-line); border-radius: 46px; }
+  .rim::after { content: ""; position: absolute; inset: 6px; border: 1px solid var(--felt-line); border-radius: 40px; opacity: 0.6; }
+  /* The king of hearts on its way to the empty corner, lifted off the table and lit. */
+  .flying {
+    --w: 92px;
+    transform: translate(-50%, -50%) rotate(-22deg);
+    box-shadow: 0 0 0 3px var(--gold), 0 0 26px color-mix(in srgb, var(--gold) 70%, transparent), 24px 34px 30px -10px rgba(0, 0, 0, 0.6);
+  }
+  /* June across the table, Nana at the side: their cards face down, their portraits under them. */
+  .rival { display: grid; justify-items: center; transform: translate(-50%, -50%); }
+  .rival .avatar { width: 76px; height: 76px; box-shadow: 0 0 0 2.5px rgba(244, 239, 225, 0.75), 0 4px 12px rgba(0, 0, 0, 0.45); }
+  .rival .fan { position: relative; height: 68px; margin-bottom: 8px; }
+  .rival .back { --w: 44px; position: absolute; top: 0; box-shadow: 0 0 0 0.5px var(--card-edge), 0 3px 6px rgba(0, 0, 0, 0.35); }
+  /* Your hand along the bottom edge, the cards you can play raised with their gold dots. */
+  .mine { --w: 112px; transform: translate(-50%, 0) rotate(var(--r)); transform-origin: 50% 200%; }
+  .mine.playable { margin-top: -18px; }
+  .mine.playable::after { content: ""; position: absolute; left: 50%; top: -14px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--gold); }
+  .hand-art .card { box-shadow: 0 0 0 0.5px var(--card-edge), -3px 0 6px -1px rgba(0, 0, 0, 0.24), 0 16px 24px -10px rgba(0, 0, 0, 0.55); }
+
+  .guide { outline: 2px solid #ff2bd6; z-index: 50; }
+</style>
+</head>
+<body>
+<div class="stage felt" id="stage"></div>
+<script type="module">
+  import { installSprites, cardHTML, backHTML, avatarHTML, tableHTML } from '../../web/render.js';
+  installSprites();
+  const q = new URLSearchParams(location.search);
+  const kind = q.get('kind') ?? 'header';
+  const de = q.get('lang') === 'de';
+  document.body.classList.add(kind);
+  document.documentElement.lang = de ? 'de' : 'en';
+  const stage = document.getElementById('stage');
+  const at = (x, y, html, style = '') => {
+    const el = document.createElement('div');
+    el.innerHTML = html;
+    const node = el.firstElementChild;
+    node.style.cssText += `left:${x}px;top:${y}px;${style}`;
+    stage.append(node);
+    return node;
+  };
+  // Apple's art-safe areas, in stage pixels (half the image's).
+  const SAFE = { header: [548.5, 246.5, 823, 330.5], search: [418, 382.5, 1084, 515] };
+
+  if (kind === 'header') {
+    at(604, 300, '<div class="oval"></div>');
+    for (const [x, y, turn, code] of [[78, 40, -35, 'Ks'], [1842, 40, 35, 'Kh'], [78, 783, 215, 'Kd'], [1842, 783, 145, 'Kc']]) {
+      at(x, y, cardHTML(code, 'king'), `--turn:${turn}deg`);
+    }
+    at(960, 300, `<div class="chair">${avatarHTML('june')}</div>`);
+    at(604, 412, `<div class="chair">${avatarHTML('pip')}</div>`);
+    at(1316, 412, `<div class="chair">${avatarHTML('nana')}</div>`);
+    at(960, 524, '<div class="chair you"></div>');
+    at(960, 412, `<p class="say">${de ? 'Setz dich dazu.' : 'Pull up a chair.'}</p>`);
+  } else {
+    // A game in play: the cross from the real table, the northwest corner still empty.
+    const view = {
+      variant: 'classic', stock: 20, seats: [], hand: [], actions: {}, targets: new Set(['nw']),
+      spots: { n: ['Td', '9c', '8h'], e: ['Qs', 'Jh'], s: ['6h', '5s'], w: ['9d'], ne: ['Kc', 'Qd', 'Js'], se: ['Ks', 'Qh'], sw: ['Kd'], nw: [] },
+    };
+    const holder = document.createElement('div');
+    holder.innerHTML = tableHTML(view);
+    at(1074, 412, '<div class="rim"></div>');
+    const board = at(1090, 424, '<div class="board-art"></div>');
+    board.append(holder.querySelector('.cross'));
+    // June across, Leo to the left, Nana to the right.
+    const fan = (n, dx, dy) => `<div class="fan" style="width:${44 + dx * (n - 1)}px;height:${62 + dy * (n - 1)}px">`
+      + Array.from({ length: n }, (_, i) => backHTML().replace('class="card back', `style="left:${i * dx}px;top:${i * dy}px" class="card back`)).join('') + '</div>';
+    at(1268, 286, `<div class="rival">${fan(5, 15, 0)}${avatarHTML('june')}</div>`);
+    at(250, 654, `<div class="rival">${fan(6, 0, 9)}${avatarHTML('leo')}</div>`);
+    at(1610, 654, `<div class="rival">${fan(6, 0, 9)}${avatarHTML('nana')}</div>`);
+    // Your hand.
+    const hand = at(0, 0, '<div class="hand-art"></div>', 'inset:0');
+    const mine = [['2s'], ['3c'], ['4d', 1], ['5h'], ['7c', 1], ['Jc', 1]];
+    mine.forEach(([code, play], i) => {
+      const c = i - (mine.length - 1) / 2;
+      const node = document.createElement('div');
+      node.innerHTML = cardHTML(code, `mine${play ? ' playable' : ''}`);
+      const card = node.firstElementChild;
+      card.style.cssText = `position:absolute;left:${1268 + c * 82}px;top:${1092 + Math.abs(c) * 6}px;--r:${c * 2.4}deg`;
+      hand.append(card);
+    });
+    at(1062, 482, cardHTML('Kh', 'flying'));
+    at(440, 640, `<p class="say">${de ? 'Könige<br>in die Ecken.' : 'Kings go<br>in the corners.'}</p>`);
+  }
+
+  if (q.has('guides')) {
+    const [x, y, w, h] = SAFE[kind];
+    at(x, y, '<div class="guide"></div>', `width:${w}px;height:${h}px`);
+  }
+</script>
+</body>
+</html>
